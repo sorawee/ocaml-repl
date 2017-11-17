@@ -1,7 +1,11 @@
 #MyREPLView = require './Repl-view'
 REPLView = require './Repl-View/ReplView'
 REPLManager = require './ReplManager'
+$ = require 'jquery'
 {CompositeDisposable} = require 'atom'
+
+REPL_NAME = 'REPL: OCaml'
+delay = (ms, func) -> setTimeout func, ms
 
 module.exports = MyREPL =
 
@@ -123,11 +127,20 @@ config:
       console.log("error interpreteSelect")
 
   interpreteFile: ->
+    
+    atom.workspace
+      .getTextEditors()
+      .filter (editor) -> editor.getTitle() == REPL_NAME
+      .forEach (editor) -> editor.destroy()
+    
     txtEditor = atom.workspace.getActiveTextEditor()
     if (txtEditor?)
       grammarName = txtEditor.getGrammar().name
-      #@replManager.createRepl(grammarName)
-      @replManager.interprete(txtEditor.getText(),grammarName)
-
+      @replManager.createRepl(grammarName)
+      delay 100, =>
+        @replManager.interprete(txtEditor.getText(),grammarName)
+        pane = atom.workspace.paneForItem(txtEditor)
+        pane.activate()
+        
     else
       console.log("error interpreteFile")

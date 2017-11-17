@@ -12,6 +12,7 @@
   "dependencies": {
     "strip-ansi": "2.0.1",
     "event-kit": "1.0.1",
-    "clone": "1.0.2"
+    "clone": "1.0.2",
+    "jquery": "^2.1.4"
   }
 }
