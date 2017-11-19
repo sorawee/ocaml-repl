@@ -85,10 +85,10 @@ class REPLView
       if matches?
         matches.forEach (match) =>
           if match.endsWith '[4m'
-            newData = newData.replace(match, '❮❮❮')
+            newData = newData.replace(match, '❮❮❮❮❮')
             underlined = true
           else if underlined and match.endsWith '[24m'
-            newData = newData.replace(match, '❯❯❯')
+            newData = newData.replace(match, '❯❯❯❯❯')
             underlined = false
           else
             newData = newData.replace(match, '')
