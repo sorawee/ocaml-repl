@@ -21,13 +21,11 @@ class REPLView
     @subscribe.clear()
     @repl.remove()
 
-  dealWithBackspace: =>
+  dealWithBackspace: (event) =>
     buf = @replTextEditor.getCursorBufferPosition()
+    console.log(@lastBuf, buf)
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column >= buf.column)
-      @ignore = true
-      @replTextEditor.insertText ' '
-      @ignore = false
-      return
+      event.stopImmediatePropagation()
 
   dealWithDelete: =>
     '''Gerer suppression text Selection'''
@@ -78,7 +76,7 @@ class REPLView
     @subscribe.add atom.commands.add textEditorElement, 'editor:newline': => @dealWithEnter()
     @subscribe.add atom.commands.add textEditorElement, 'core:move-up': @dealWithUp
     @subscribe.add atom.commands.add textEditorElement, 'core:move-down': => @dealWithDown()
-    @subscribe.add atom.commands.add textEditorElement, 'core:backspace': => @dealWithBackspace()
+    @subscribe.add atom.commands.add textEditorElement, 'core:backspace': @dealWithBackspace
     @subscribe.add atom.commands.add textEditorElement, 'core:delete': => @dealWithDelete()
     @setGrammar()
 
