@@ -9,7 +9,7 @@ class Repl
 
     processCmd: ()->
       @indiceH = -1
-      @retour(@prompt,true) if @processing # show prompt
+      @retour(@prompt, true) if @processing # show prompt
       if @cmdQueue.length > 0 # list of cmd to execute
         @processing = true
         cmd = @cmdQueue.shift()
@@ -23,8 +23,8 @@ class Repl
         @processing = false
 
     history: (up) ->
-      @indiceH = @indiceH + 1 if up && @historique.length  - 1 > @indiceH
-      @indiceH = @indiceH - 1 if not up && @indiceH >= 0
+      @indiceH = @indiceH + 1 if up and @historique.length - 1 > @indiceH
+      @indiceH = @indiceH - 1 if not up and @indiceH >= 0
       if @indiceH == -1
         @retour('', false)
         return
@@ -50,16 +50,14 @@ class Repl
     writeInRepl: (cmd, write_cmd) ->
       if write_cmd
         cmd = cmd + @endSequence if cmd.slice(-@endSequence.length) != @endSequence
-        lines = cmd.split @endSequence
-        for element in lines
-          element = element.trim()
-          @cmdQueue.push [element + @endSequence, write_cmd] if element != ""
+        (cmd.split @endSequence).forEach (line) => 
+          @cmdQueue.push [line + @endSequence, write_cmd] if line.trim() != ""
       else
         @historique.unshift cmd
         @cmdQueue.push [cmd, write_cmd]
       @processCmd() unless @processing
 
-    constructor:(r_format, @retour) ->
+    constructor: (r_format, @retour) ->
       @historique = new Array()
       @indiceH = -1
       @processing = true

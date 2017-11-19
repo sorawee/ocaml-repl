@@ -17,7 +17,7 @@ class REPLView
   interprete: (select) =>
     @repl.writeInRepl(select, true)
 
-  remove: () =>
+  remove: =>
     @subscribe.clear()
     @repl.remove()
 
@@ -43,7 +43,7 @@ class REPLView
     @replTextEditor.moveToBottom()
     @replTextEditor.moveToEndOfLine()
     buf = @replTextEditor.getCursorBufferPosition()
-    @repl.writeInRepl(@replTextEditor.getTextInBufferRange([@lastBuf,buf])+'\n',false)
+    @repl.writeInRepl(@replTextEditor.getTextInBufferRange([@lastBuf, buf]) + '\n', false)
     @lastBuf = buf
 
 
@@ -82,10 +82,9 @@ class REPLView
     @subscribe.add atom.commands.add textEditorElement, 'core:delete': => @dealWithDelete()
     @setGrammar()
 
-  setRepl: (repl) =>
-    @repl = repl
+  setRepl: (repl) => @repl = repl
 
-  dealWithRetour: (data,append) =>
+  dealWithRetour: (data, append) =>
     if append
     #console.log(@replTextEditor.constructor.name)
       newData = "" + data
@@ -119,22 +118,22 @@ class REPLView
       #@replTextEditor.moveToEndOfLine()
       #@lastBuf = @replTextEditor.getCursorBufferPosition()
 
-  constructor: (@grammarName,file,callBackCreate) ->
+  constructor: (@grammarName, file, callBackCreate) ->
     self = this
     @subscribe = new CompositeDisposable
-    format = new REPLFormat("../../Repls/"+file) # new REPLFormat(@key)
+    format = new REPLFormat("../../Repls/" + file)
     @lastBuf = 0
     @ignore = false
     #@minimaltext = ""
-    uri = "REPL: "+@grammarName
-    opts = split:'right' if atom.config.get('Repl.splitRight')
+    uri = "REPL: " + @grammarName
+    opts = split: 'right' if atom.config.get('Repl.splitRight')
     atom.workspace.open(uri, opts).done (textEditor) =>
           pane = atom.workspace.getActivePane()
-          if(self.grammarName == "Python Console3" || self.grammarName == "Python Console2" || self.grammarName == "Python")
+          if self.grammarName == "Python Console3" or self.grammarName == "Python Console2" or self.grammarName == "Python"
             @grammarName = "Python Console"
-            self.setTextEditor(textEditor)
-            self.setRepl(new REPLPython(format,self.dealWithRetour))
+            self.setTextEditor textEditor
+            self.setRepl(new REPLPython(format, self.dealWithRetour))
           else
-            self.setTextEditor(textEditor)
-            self.setRepl(new REPL(format,self.dealWithRetour))
+            self.setTextEditor textEditor
+            self.setRepl(new REPL(format, self.dealWithRetour))
           callBackCreate(self,pane)

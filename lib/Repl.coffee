@@ -10,11 +10,56 @@ delay = (ms, func) -> setTimeout func, ms
 module.exports = MyREPL =
 
 config:
+    # bash:
+    #   title: 'Bash'
+    #   type: 'string'
+    #   default: 'bash'
+    #   description: 'path to bash ex: /usr/bin/bash'
+    # coffee:
+    #   type: 'string'
+    #   title: 'Coffee'
+    #   default: 'coffee'
+    #   description: 'path to coffee'
+    # gdb:
+    #   type: 'string'
+    #   title: 'Gdb'
+    #   default: 'gdb'
+    #   description: 'path to gdb'
+    # node:
+    #   type: 'string'
+    #   title: 'Node.js'
+    #   default: 'node'
+    #   description: 'path to node'
     ocaml:
       type: 'string'
       title: 'Ocaml'
       default: 'ocaml'
       description: 'path to ocaml'
+    # octave:
+    #   type: 'string'
+    #   title: 'Octave'
+    #   default: 'octave'
+    #   description: 'path to Octave'
+    # python2:
+    #   type: 'string'
+    #   title: 'Python 2'
+    #   default: 'python2'
+    #   description: 'path to python2'
+    # python3:
+    #   type: 'string'
+    #   title: 'Python 3'
+    #   default: 'python3'
+    #   description: 'path to python3'
+    # r:
+    #   type: 'string'
+    #   title: 'R'
+    #   default: 'R'
+    #   description: 'path to R'
+    # swift:
+    #   type: 'string'
+    #   title: 'Swift'
+    #   default: 'swift'
+    #   description: 'path to swift'
     splitRight:
       type: 'boolean'
       title: 'Open Repl in the rightmost pane'
@@ -26,7 +71,6 @@ config:
   subscriptions: null
 
   activate: (state) ->
-    console.log("activate Repl")
     @map = new Array()
     @replManager = new REPLManager()
     #@myREPLView = new MyREPLView(state.myREPLViewState)
@@ -98,8 +142,9 @@ config:
     if txtEditor?
       grammarName = txtEditor.getGrammar().name
       @replManager.createRepl grammarName
+      txtEditor.save()
       delay 100, =>
-        @replManager.interprete(txtEditor.getText(), grammarName)
+        @replManager.interprete("#use \"#{txtEditor.getPath()}\"", grammarName)
         pane = atom.workspace.paneForItem txtEditor
         pane.activate()
     else
