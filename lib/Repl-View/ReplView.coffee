@@ -2,9 +2,10 @@ fs = require 'fs'
 REPL  = require '../Repl/ReplClass'
 REPLPython  = require '../Repl/ReplClassPython'
 REPLFormat = require '../Repl/ReplFormat'
-stripAnsi = require 'strip-ansi'
+ansiRegex = require 'ansi-regex'
 {CompositeDisposable} = require 'event-kit'
 clone = require 'clone'
+
 
 module.exports =
 class REPLView
@@ -93,7 +94,22 @@ class REPLView
   dealWithRetour: (data,append) =>
     if append
     #console.log(@replTextEditor.constructor.name)
-      @replTextEditor.insertText(stripAnsi(""+data))
+      newData = ""+data
+      matches = newData.match(ansiRegex())
+      underlined = false
+      
+      if matches?
+        matches.forEach (match) =>
+          if match.endsWith '[4m'
+            newData = newData.replace(match, '❰')
+            underlined = true
+          else if underlined is true and match.endsWith '[24m'
+            newData = newData.replace(match, '❱')
+            underlined = false
+          else
+            newData = newData.replace(match, '')
+
+      @replTextEditor.insertText(newData)
       @lastBuf = @replTextEditor.getCursorBufferPosition()
     else
       '''

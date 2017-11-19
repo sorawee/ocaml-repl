@@ -10,7 +10,7 @@
     "atom": ">0.50.0"
   },
   "dependencies": {
-    "strip-ansi": "2.0.1",
+    "ansi-regex": "^3.0.0",
     "event-kit": "1.0.1",
     "clone": "1.0.2",
     "jquery": "^2.1.4"
