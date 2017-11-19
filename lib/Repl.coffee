@@ -68,7 +68,7 @@ config:
       .forEach (editor) -> editor.destroy()
       
     if(!grammarName?)
-      if (atom.workspace.getActiveTextEditor()?)
+      if atom.workspace.getActiveTextEditor()?
         grammarName = atom.workspace.getActiveTextEditor().getGrammar().name
       else
         console.log("erreur1")
@@ -79,28 +79,28 @@ config:
 
   interpreteSelect: ->
     txtEditor = atom.workspace.getActiveTextEditor()
-    if (txtEditor?)
+    if txtEditor?
       grammarName = txtEditor.getGrammar().name
       #@replManager.createRepl(grammarName)
-      @replManager.interprete(txtEditor.getSelectedText(),grammarName)
+      @replManager.interprete(txtEditor.getSelectedText(), grammarName)
     else
       console.log("error interpreteSelect")
 
   interpreteFile: ->
+    editors = atom.workspace.getTextEditors()
+    return if editors.length is 1
     
-    atom.workspace
-      .getTextEditors()
+    editors
       .filter (editor) -> editor.getTitle() == REPL_NAME
       .forEach (editor) -> editor.destroy()
     
     txtEditor = atom.workspace.getActiveTextEditor()
-    if (txtEditor?)
+    if txtEditor?
       grammarName = txtEditor.getGrammar().name
-      @replManager.createRepl(grammarName)
+      @replManager.createRepl grammarName
       delay 100, =>
-        @replManager.interprete(txtEditor.getText(),grammarName)
-        pane = atom.workspace.paneForItem(txtEditor)
+        @replManager.interprete(txtEditor.getText(), grammarName)
+        pane = atom.workspace.paneForItem txtEditor
         pane.activate()
-        
     else
       console.log("error interpreteFile")

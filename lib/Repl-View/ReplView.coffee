@@ -9,49 +9,45 @@ clone = require 'clone'
 
 module.exports =
 class REPLView
-
-  dealWithInsert :(event) =>
+  dealWithInsert: (event) =>
     buf = @replTextEditor.getCursorBufferPosition()
-    if !@ignore && (@lastBuf.row>buf.row || (@lastBuf.row == buf.row && @lastBuf.column > buf.column))
+    if not @ignore and (@lastBuf.row>buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column))
       event.cancel()
 
-  interprete :(select) =>
-    #console.log(select)
-    @repl.writeInRepl(select,true)
+  interprete: (select) =>
+    @repl.writeInRepl(select, true)
 
-  remove :() =>
+  remove: () =>
     @subscribe.clear()
     @repl.remove()
 
-  dealWithBackspace :() =>
+  dealWithBackspace: =>
     buf = @replTextEditor.getCursorBufferPosition()
-    if(@lastBuf.row>buf.row || (@lastBuf.row == buf.row && @lastBuf.column >= buf.column))
+    if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column >= buf.column)
       @ignore = true
-      @replTextEditor.insertText(' ')
+      @replTextEditor.insertText ' '
       @ignore = false
       return
 
-  dealWithDelete :() =>
+  dealWithDelete: =>
     '''Gerer suppression text Selection'''
     buf = @replTextEditor.getCursorBufferPosition()
-    if(@lastBuf.row>buf.row || (@lastBuf.row == buf.row && @lastBuf.column > buf.column))
+    if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
       @ignore = true
-      @replTextEditor.insertText(' ')
-      @replTextEditor.moveLeft(1)
+      @replTextEditor.insertText ' '
+      @replTextEditor.moveLeft 1
       @ignore = false
       return
 
-  dealWithEnter :() =>
-    #console.log('enter')
+  dealWithEnter: =>
     @replTextEditor.moveToBottom()
     @replTextEditor.moveToEndOfLine()
     buf = @replTextEditor.getCursorBufferPosition()
-    #console.log(@replTextEditor.getTextInBufferRange([@lastBuf,buf]))
     @repl.writeInRepl(@replTextEditor.getTextInBufferRange([@lastBuf,buf])+'\n',false)
     @lastBuf = buf
 
 
-  setGrammar : =>
+  setGrammar: =>
     grammars = atom.grammars.getGrammars()
     gName = if @grammarName == 'Node' then 'JavaScript' else @grammarName
     #console.log(grammars[0])
@@ -64,47 +60,45 @@ class REPLView
         @replTextEditor.setGrammar(grammarToUse)
         return
 
-  dealWithUp:()->
+  dealWithUp: (e) =>
+    e.stopImmediatePropagation()
     @replTextEditor.moveToEndOfLine()
-    buf = @replTextEditor.getCursorBufferPosition()
-    @repl.history(true,@replTextEditor.getTextInBufferRange([@lastBuf,buf]))
+    @repl.history true
 
-  dealWithDown:()->
-    #console.log('down')
+  dealWithDown: =>
     @replTextEditor.moveToEndOfLine()
-    buf = @replTextEditor.getCursorBufferPosition()
-    @repl.history(false,@replTextEditor.getTextInBufferRange([@lastBuf,buf]))
+    @repl.history false
 
-  setTextEditor :(textEditor) =>
+  setTextEditor: (textEditor) =>
     @replTextEditor = textEditor
     #@replTextEditor.onDidChangeCursorPosition(@dealWithBuffer)
     #@replTextEditor.onWillInsertText(@dealWithEnter)
     @subscribe.add @replTextEditor.onWillInsertText(@dealWithInsert)
-    @subscribe.add textEditorElement = atom.views.getView(@replTextEditor)
+    @subscribe.add textEditorElement = atom.views.getView @replTextEditor
     @subscribe.add atom.commands.add textEditorElement, 'editor:newline': => @dealWithEnter()
-    @subscribe.add atom.commands.add textEditorElement, 'core:move-up': =>@dealWithUp()
+    @subscribe.add atom.commands.add textEditorElement, 'core:move-up': @dealWithUp
     @subscribe.add atom.commands.add textEditorElement, 'core:move-down': => @dealWithDown()
     @subscribe.add atom.commands.add textEditorElement, 'core:backspace': => @dealWithBackspace()
     @subscribe.add atom.commands.add textEditorElement, 'core:delete': => @dealWithDelete()
     @setGrammar()
 
-  setRepl :(repl) =>
+  setRepl: (repl) =>
     @repl = repl
 
   dealWithRetour: (data,append) =>
     if append
     #console.log(@replTextEditor.constructor.name)
-      newData = ""+data
-      matches = newData.match(ansiRegex())
+      newData = "" + data
+      matches = newData.match ansiRegex()
       underlined = false
-      
+
       if matches?
         matches.forEach (match) =>
           if match.endsWith '[4m'
-            newData = newData.replace(match, '❰')
+            newData = newData.replace(match, '❮')
             underlined = true
-          else if underlined is true and match.endsWith '[24m'
-            newData = newData.replace(match, '❱')
+          else if underlined and match.endsWith '[24m'
+            newData = newData.replace(match, '❯')
             underlined = false
           else
             newData = newData.replace(match, '')

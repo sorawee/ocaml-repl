@@ -3,100 +3,78 @@ child_process = require 'child_process'
 
 module.exports =
 class Repl
-
-    remove : () ->
+    remove: () ->
       console.log("kill Repl")
       @replProcess.kill('SIGKILL')
 
-    processCmd:()->
+    processCmd: ()->
       @indiceH = -1
-      if(@processing) # show prompt
-        @retour(@prompt,true)
-      if(@cmdQueue.length > 0) # list of cmd to execute
+      @retour(@prompt,true) if @processing # show prompt
+      if @cmdQueue.length > 0 # list of cmd to execute
         @processing = true
         cmd = @cmdQueue.shift()
-        if (cmd[1]) # re-write cmd
-            @print += cmd[0]
+        @print += cmd[0] if cmd[1] # re-write cmd
         @replProcess.stdin.write(cmd[0]) # send cmd to pipe
         if cmd[0].slice(-@endSequence.length) != @endSequence
-            '''
-            if not ending with end sequence execute next one
-            '''
-            @processing = false
-            @processCmd() #
+          # if not ending with end sequence execute next one
+          @processing = false
+          @processCmd() #
       else
         @processing = false
 
-    history:(up,last)->
+    history: (up) ->
+      @indiceH = @indiceH + 1 if up && @historique.length  - 1 > @indiceH
+      @indiceH = @indiceH - 1 if not up && @indiceH >= 0
       if @indiceH == -1
-        @last = last
-      if up && @historique.length  - 1 > @indiceH
-            @indiceH = @indiceH + 1
-      if !up && @indiceH >= 0
-        @indiceH = @indiceH - 1
-      if @indiceH == -1
-        @retour(@last,false)
+        @retour('', false)
         return
-      h = @historique[@indiceH].substring(0,@historique[@indiceH].length-1)
-      #console.log(@historique[@indiceH])
-      @retour(h,false)
-      #@retour(@history.get(0))
+      h = @historique[@indiceH]
+      h = h.substring(0, h.length - 1) # trim newline away
+      @retour(h, false)
 
-    processOutputData:(data) ->
-      #console.log(@prompt)
-      @print += ""+data
-      @retour(@print,true)
+    processOutputData: (data) ->
+      @print += "" + data
+      @retour(@print, true)
       @print = ""
       @processCmd()
-      #@prompt = true
 
-    processErrorData:(data) ->
-      #console.log(@prompt)
-      @print += ""+data
-      process.stderr.write(@print)
+    processErrorData: (data) ->
+      @print += "" + data
+      process.stderr.write @print
       @print = ""
       @processCmd()
-      #@prompt = true
 
-
-    closeRepl:(code) ->
+    closeRepl: (code) ->
       console.log('child process exited with code ' + code)
 
-    writeInRepl:(cmd, write_cmd) ->
-      #console.log(cmd)
-      #@replProcess.stdin.write(s)
+    writeInRepl: (cmd, write_cmd) ->
       if write_cmd
-        if cmd.slice(-@endSequence.length) != @endSequence
-          cmd = cmd+@endSequence
-        lines = cmd.split(@endSequence)
+        cmd = cmd + @endSequence if cmd.slice(-@endSequence.length) != @endSequence
+        lines = cmd.split @endSequence
         for element in lines
-          if(element != "")
-            @historique.unshift(element+@endSequence)
-            @cmdQueue.push([element+@endSequence,write_cmd])
+          element = element.trim()
+          @cmdQueue.push [element + @endSequence, write_cmd] if element != ""
       else
-        #console.log("1"+cmd)
-        @historique.unshift(cmd)
-        @cmdQueue.push([cmd,write_cmd])
-      if(!@processing)
-        @processCmd()
+        @historique.unshift cmd
+        @cmdQueue.push [cmd, write_cmd]
+      @processCmd() unless @processing
 
     constructor:(r_format, @retour) ->
       @historique = new Array()
       @indiceH = -1
-      self = this
       @processing = true
       @cmd = r_format.cmd
       args = r_format.args
       @prompt = r_format.prompt
       @endSequence = r_format.endSequence
       @print = ""
-      @cmdQueue =   new Array()
+      @cmdQueue = new Array()
       @replProcess = child_process.spawn(cmd, args)
-      console.log(cmd)
-      @replProcess.stdout.on('data', (data)->self.processOutputData(data))
-      @replProcess.stderr.on('data', (data)->self.processErrorData(data))
-      @replProcess.on('close', ()->self.closeRepl())
-      @retour(@print,true)
+      @replProcess.stdout.on('data', (data) => @processOutputData data)
+      @replProcess.stderr.on('data', (data) => @processErrorData data)
+      @replProcess.on('close', () => @closeRepl())
+      @retour(@print, true)
+
 '''
 sh = new ReplSh()
 ocaml = new ReplOcaml()
