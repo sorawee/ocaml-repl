@@ -27,15 +27,11 @@ class REPLView
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column >= buf.column)
       event.stopImmediatePropagation()
 
-  dealWithDelete: =>
+  dealWithDelete: (event) =>
     '''Gerer suppression text Selection'''
     buf = @replTextEditor.getCursorBufferPosition()
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
-      @ignore = true
-      @replTextEditor.insertText ' '
-      @replTextEditor.moveLeft 1
-      @ignore = false
-      return
+      event.stopImmediatePropagation()
 
   dealWithEnter: =>
     @replTextEditor.moveToBottom()
@@ -77,7 +73,7 @@ class REPLView
     @subscribe.add atom.commands.add textEditorElement, 'core:move-up': @dealWithUp
     @subscribe.add atom.commands.add textEditorElement, 'core:move-down': => @dealWithDown()
     @subscribe.add atom.commands.add textEditorElement, 'core:backspace': @dealWithBackspace
-    @subscribe.add atom.commands.add textEditorElement, 'core:delete': => @dealWithDelete()
+    @subscribe.add atom.commands.add textEditorElement, 'core:delete': @dealWithDelete
     @setGrammar()
 
   setRepl: (repl) => @repl = repl
