@@ -10,8 +10,8 @@ clone = require 'clone'
 module.exports =
 class REPLView
   dealWithInsert: (event) =>
-    buf = @replTextEditor.getCursorBufferPosition()
-    if not @ignore and (@lastBuf.row>buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column))
+    buf = @replTextEditor.getSelectedBufferRange().start
+    if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
       event.cancel()
 
   interprete: (select) =>
@@ -22,14 +22,13 @@ class REPLView
     @repl.remove()
 
   dealWithBackspace: (event) =>
-    buf = @replTextEditor.getCursorBufferPosition()
-    console.log(@lastBuf, buf)
+    buf = @replTextEditor.getSelectedBufferRange().start
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column >= buf.column)
       event.stopImmediatePropagation()
 
   dealWithDelete: (event) =>
     '''Gerer suppression text Selection'''
-    buf = @replTextEditor.getCursorBufferPosition()
+    buf = @replTextEditor.getSelectedBufferRange().start
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
       event.stopImmediatePropagation()
 
@@ -44,7 +43,6 @@ class REPLView
   setGrammar: =>
     grammars = atom.grammars.getGrammars()
     gName = if @grammarName == 'Node' then 'JavaScript' else @grammarName
-    #console.log(grammars[0])
     for grammar in grammars
       if (grammar.name ==  gName)
         # change the scopeName so that other packages (namely the atom-linter package [https://atom.io/packages/linter]) stop making invalid actions;
@@ -80,7 +78,6 @@ class REPLView
 
   dealWithRetour: (data, append) =>
     if append
-    #console.log(@replTextEditor.constructor.name)
       newData = "" + data
       matches = newData.match ansiRegex()
       underlined = false
@@ -88,10 +85,10 @@ class REPLView
       if matches?
         matches.forEach (match) =>
           if match.endsWith '[4m'
-            newData = newData.replace(match, '❮')
+            newData = newData.replace(match, '❮❮❮')
             underlined = true
           else if underlined and match.endsWith '[24m'
-            newData = newData.replace(match, '❯')
+            newData = newData.replace(match, '❯❯❯')
             underlined = false
           else
             newData = newData.replace(match, '')
@@ -117,7 +114,6 @@ class REPLView
     @subscribe = new CompositeDisposable
     format = new REPLFormat("../../Repls/" + file)
     @lastBuf = 0
-    @ignore = false
     #@minimaltext = ""
     uri = "REPL: " + @grammarName
     opts = split: 'right' if atom.config.get('Repl.splitRight')

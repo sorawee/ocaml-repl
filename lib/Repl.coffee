@@ -144,7 +144,7 @@ config:
       @replManager.createRepl grammarName
       txtEditor.save()
       delay 100, =>
-        @replManager.interprete("#use \"#{txtEditor.getPath()}\"", grammarName)
+        @replManager.interprete(txtEditor.getText(), grammarName)
         pane = atom.workspace.paneForItem txtEditor
         pane.activate()
     else

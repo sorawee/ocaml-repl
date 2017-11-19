@@ -1,5 +1,6 @@
 fs = require 'fs'
 child_process = require 'child_process'
+ansiRegex = require 'ansi-regex'
 
 module.exports =
 class Repl
@@ -9,11 +10,10 @@ class Repl
 
     processCmd: ()->
       @indiceH = -1
-      @retour(@prompt, true) if @processing # show prompt
+      # @retour(@prompt, true) if @processing # show prompt
       if @cmdQueue.length > 0 # list of cmd to execute
         @processing = true
         cmd = @cmdQueue.shift()
-        @print += cmd[0] if cmd[1] # re-write cmd
         @replProcess.stdin.write(cmd[0]) # send cmd to pipe
         if cmd[0].slice(-@endSequence.length) != @endSequence
           # if not ending with end sequence execute next one
@@ -35,6 +35,14 @@ class Repl
     processOutputData: (data) ->
       @print += "" + data
       @retour(@print, true)
+      
+      (@print.split '\n').forEach (line) =>
+        matches = line.match ansiRegex()
+        if (matches? and matches.length > 0 and
+             matches[0].endsWith('[24m') and
+             line.replace(matches[0], '').startsWith('Error: ') and
+             not line.startsWith('Error: '))
+          @cmdQueue = []
       @print = ""
       @processCmd()
 
