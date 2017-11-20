@@ -35,7 +35,7 @@ class Repl
     processOutputData: (data) ->
       @print += "" + data
       @retour(@print, true)
-      
+
       (@print.split '\n').forEach (line) =>
         matches = line.match ansiRegex()
         if (matches? and matches.length > 0 and
@@ -58,7 +58,7 @@ class Repl
     writeInRepl: (cmd, write_cmd) ->
       if write_cmd
         cmd = cmd + @endSequence if cmd.slice(-@endSequence.length) != @endSequence
-        (cmd.split @endSequence).forEach (line) => 
+        (cmd.split @endSequence).forEach (line) =>
           @cmdQueue.push [line + @endSequence, write_cmd] if line.trim() != ""
       else
         @historique.unshift cmd
