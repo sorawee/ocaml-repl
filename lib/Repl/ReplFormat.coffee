@@ -11,4 +11,5 @@ class ReplFormat
         @args = args
         @prompt = prompt
         @endSequence = endSequence
+        @outErrorIntercept = outErrorIntercept
         delete require.cache[require.resolve(conf_path)]

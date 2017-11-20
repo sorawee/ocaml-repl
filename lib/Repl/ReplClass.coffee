@@ -1,6 +1,5 @@
 fs = require 'fs'
 child_process = require 'child_process'
-ansiRegex = require 'ansi-regex'
 
 module.exports =
 class Repl
@@ -35,18 +34,9 @@ class Repl
     processOutputData: (data) ->
       @print += "" + data
       @retour @print, true
-      
-      [..., lastLine, _] = @print.trim().split '\n'
-      
-      if lastLine?
-        matches = lastLine.match ansiRegex()
-        if matches? and matches.length > 0 and
-           matches[0].endsWith('[24m') and
-           lastLine.replace(matches[0], '').startsWith('Error: ') and
-           not lastLine.startsWith 'Error: '
-          @cmdQueue = []
-        else if lastLine.startsWith('Exception: ') and lastLine.endsWith('.')
-          @cmdQueue = []
+
+      if @outErrorIntercept @print
+        @cmdQueue = []
 
       @print = ""
       @processCmd()
@@ -63,7 +53,7 @@ class Repl
     writeInRepl: (cmd, write_cmd) ->
       if write_cmd
         cmd = cmd + @endSequence if cmd.slice(-@endSequence.length) != @endSequence
-        (cmd.split @endSequence).forEach (line) => 
+        (cmd.split @endSequence).forEach (line) =>
           @cmdQueue.push [line + @endSequence, write_cmd] if line.trim() != ""
       else
         @historique.unshift cmd
@@ -78,6 +68,7 @@ class Repl
       args = r_format.args
       @prompt = r_format.prompt
       @endSequence = r_format.endSequence
+      @outErrorIntercept = r_format.outErrorIntercept
       @print = ""
       @cmdQueue = new Array()
       @replProcess = child_process.spawn cmd, args

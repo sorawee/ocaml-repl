@@ -7,12 +7,12 @@ class ReplManager
 
   constructor: () ->
     @map = {}
-    Object.keys(dico).forEach (k) => @map[k] = null;      
+    Object.keys(dico).forEach (k) => @map[k] = null;
 
   interprete : (select, grammarName) =>
     replView = @map[grammarName]
     if replView?
-      replView.interprete select 
+      replView.interprete select
     else
       console.log("error interprete")
 
@@ -21,11 +21,11 @@ class ReplManager
 
   callBackCreate: (replView, pane) =>
     @map[replView.grammarName] = replView
-    
+
     # pane.onDidActivate(=>
     #   if pane.getActiveItem() == replView.replTextEditor
     #     @map[replView.grammarName] = replView
-    #     
+    #
     #   )
     replView.replTextEditor.onDidDestroy(=>
       if @map[replView.grammarName] == replView
