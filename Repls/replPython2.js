@@ -1,5 +1,5 @@
 module.exports =
-cmd = atom.config.get('Repl.python2')
+cmd = atom.config.get('ocaml-repl.python2')
 prompt = ""
 args = ["-i"]
 endSequence = '\n'

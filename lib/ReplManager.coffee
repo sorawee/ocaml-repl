@@ -7,36 +7,34 @@ class ReplManager
 
   constructor: () ->
     @map = {}
-    for k in dico
-      @map[k] = null
+    Object.keys(dico).forEach (k) => @map[k] = null;
 
-  interprete : (select,grammarName) ->
+  interprete : (select, grammarName) =>
     replView = @map[grammarName]
-    if(replView?)
-      replView.interprete(select)
+    if replView?
+      replView.interprete select
     else
       console.log("error interprete")
 
   grammarNameSupport : (grammarName) ->
-      return (dico[grammarName]?)
+      return dico[grammarName]?
 
+  callBackCreate: (replView, pane) =>
+    @map[replView.grammarName] = replView
 
-  callBackCreate: (replView,pane) =>
-    console.log("in -> callBackCreate")
-    pane.onDidActivate(()=>
-      if(pane.getActiveItem() == replView.replTextEditor)
-        @map[replView.grammarName] = replView
-      )
-    replView.replTextEditor.onDidDestroy(()=>
-      if(@map[replView.grammarName] == replView)
+    # pane.onDidActivate(=>
+    #   if pane.getActiveItem() == replView.replTextEditor
+    #     @map[replView.grammarName] = replView
+    #
+    #   )
+    replView.replTextEditor.onDidDestroy(=>
+      if @map[replView.grammarName] == replView
         @map[replView.grammarName] = null
         replView.remove()
       )
 
-  createRepl:(grammarName) =>
-    if (@grammarNameSupport(grammarName))
-      #console.log(dico[grammarName])
-      @map[grammarName] = new REPLView(grammarName,dico[grammarName],@callBackCreate)
-      #@map[grammarName] = new REPLView(grammarName,@callBackCreate)
+  createRepl: (grammarName) =>
+    if @grammarNameSupport(grammarName)
+      @map[grammarName] = new REPLView(grammarName, dico[grammarName], @callBackCreate)
     else
       console.log("grammar error")

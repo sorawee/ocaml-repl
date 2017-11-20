@@ -15,7 +15,7 @@ class REPLView
       event.cancel()
 
   interprete: (select) =>
-    @repl.writeInRepl(select, true)
+    @repl.writeInRepl select, true
 
   remove: =>
     @subscribe.clear()
@@ -32,24 +32,31 @@ class REPLView
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
       event.stopImmediatePropagation()
 
-  dealWithEnter: =>
+  dealWithEnter: (event) =>
+    event.stopImmediatePropagation()
     @replTextEditor.moveToBottom()
     @replTextEditor.moveToEndOfLine()
     buf = @replTextEditor.getCursorBufferPosition()
-    @repl.writeInRepl(@replTextEditor.getTextInBufferRange([@lastBuf, buf]) + '\n', false)
-    @lastBuf = buf
+    message = @replTextEditor.getTextInBufferRange([@lastBuf, buf]) + '\n'
+    @repl.writeInRepl(message, false)
+    @replTextEditor.insertNewline()
+    if (not @repl.processing) and (not message.trim().endsWith ';;')
+      @dealWithRetour(@format.promptCont, true)
+    @replTextEditor.moveToBottom()
+    @replTextEditor.moveToEndOfLine()
+    @lastBuf = @replTextEditor.getCursorBufferPosition()
 
 
   setGrammar: =>
     grammars = atom.grammars.getGrammars()
     gName = if @grammarName == 'Node' then 'JavaScript' else @grammarName
     for grammar in grammars
-      if (grammar.name ==  gName)
+      if grammar.name == gName
         # change the scopeName so that other packages (namely the atom-linter package [https://atom.io/packages/linter]) stop making invalid actions;
         # see https://github.com/steelbrain/linter/issues/1207
-        grammarToUse = clone.clonePrototype(grammar)
+        grammarToUse = clone.clonePrototype grammar
         grammarToUse.scopeName = 'repl.' + grammarToUse.scopeName;
-        @replTextEditor.setGrammar(grammarToUse)
+        @replTextEditor.setGrammar grammarToUse
         return
 
   dealWithUp: (e) =>
@@ -67,7 +74,7 @@ class REPLView
     #@replTextEditor.onWillInsertText(@dealWithEnter)
     @subscribe.add @replTextEditor.onWillInsertText(@dealWithInsert)
     @subscribe.add textEditorElement = atom.views.getView @replTextEditor
-    @subscribe.add atom.commands.add textEditorElement, 'editor:newline': => @dealWithEnter()
+    @subscribe.add atom.commands.add textEditorElement, 'editor:newline': @dealWithEnter
     @subscribe.add atom.commands.add textEditorElement, 'core:move-up': @dealWithUp
     @subscribe.add atom.commands.add textEditorElement, 'core:move-down': => @dealWithDown()
     @subscribe.add atom.commands.add textEditorElement, 'core:backspace': @dealWithBackspace
@@ -85,15 +92,15 @@ class REPLView
       if matches?
         matches.forEach (match) =>
           if match.endsWith '[4m'
-            newData = newData.replace(match, '❰❰❰❰❰')
+            newData = newData.replace match, '❰❰❰❰❰'
             underlined = true
           else if underlined and match.endsWith '[24m'
-            newData = newData.replace(match, '❱❱❱❱❱')
+            newData = newData.replace match, '❱❱❱❱❱'
             underlined = false
           else
-            newData = newData.replace(match, '')
+            newData = newData.replace match, ''
 
-      @replTextEditor.insertText(newData)
+      @replTextEditor.insertText newData
       @lastBuf = @replTextEditor.getCursorBufferPosition()
     else
       '''
@@ -110,20 +117,17 @@ class REPLView
       #@lastBuf = @replTextEditor.getCursorBufferPosition()
 
   constructor: (@grammarName, file, callBackCreate) ->
-    self = this
     @subscribe = new CompositeDisposable
-    format = new REPLFormat("../../Repls/" + file)
+    @format = new REPLFormat("../../Repls/" + file)
     @lastBuf = 0
-    #@minimaltext = ""
     uri = "REPL: " + @grammarName
-    opts = split: 'right' if atom.config.get('Repl.splitRight')
+    opts = split: 'right' if atom.config.get 'ocaml-repl.splitRight'
     atom.workspace.open(uri, opts).done (textEditor) =>
-          pane = atom.workspace.getActivePane()
-          if self.grammarName == "Python Console3" or self.grammarName == "Python Console2" or self.grammarName == "Python"
-            @grammarName = "Python Console"
-            self.setTextEditor textEditor
-            self.setRepl(new REPLPython(format, self.dealWithRetour))
-          else
-            self.setTextEditor textEditor
-            self.setRepl(new REPL(format, self.dealWithRetour))
-          callBackCreate(self,pane)
+      pane = atom.workspace.getActivePane()
+      @setTextEditor textEditor
+      if @grammarName == "Python Console3" or @grammarName == "Python Console2" or @grammarName == "Python"
+        @grammarName = "Python Console"
+        @setRepl(new REPLPython(@format, @dealWithRetour))
+      else
+        @setRepl(new REPL(@format, @dealWithRetour))
+      callBackCreate this, pane

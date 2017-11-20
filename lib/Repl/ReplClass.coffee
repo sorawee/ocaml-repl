@@ -1,6 +1,5 @@
 fs = require 'fs'
 child_process = require 'child_process'
-ansiRegex = require 'ansi-regex'
 
 module.exports =
 class Repl
@@ -10,11 +9,11 @@ class Repl
 
     processCmd: ()->
       @indiceH = -1
-      # @retour(@prompt, true) if @processing # show prompt
+      @retour(@prompt, true) if @processing # show prompt
       if @cmdQueue.length > 0 # list of cmd to execute
         @processing = true
         cmd = @cmdQueue.shift()
-        @replProcess.stdin.write(cmd[0]) # send cmd to pipe
+        @replProcess.stdin.write cmd[0] # send cmd to pipe
         if cmd[0].slice(-@endSequence.length) != @endSequence
           # if not ending with end sequence execute next one
           @processing = false
@@ -26,23 +25,19 @@ class Repl
       @indiceH = @indiceH + 1 if up and @historique.length - 1 > @indiceH
       @indiceH = @indiceH - 1 if not up and @indiceH >= 0
       if @indiceH == -1
-        @retour('', false)
+        @retour '', false
         return
       h = @historique[@indiceH]
-      h = h.substring(0, h.length - 1) # trim newline away
-      @retour(h, false)
+      h = h.substring 0, h.length - 1 # trim newline away
+      @retour h, false
 
     processOutputData: (data) ->
       @print += "" + data
-      @retour(@print, true)
+      @retour @print, true
 
-      (@print.split '\n').forEach (line) =>
-        matches = line.match ansiRegex()
-        if (matches? and matches.length > 0 and
-             matches[0].endsWith('[24m') and
-             line.replace(matches[0], '').startsWith('Error: ') and
-             not line.startsWith('Error: '))
-          @cmdQueue = []
+      if @outErrorIntercept @print
+        @cmdQueue = []
+
       @print = ""
       @processCmd()
 
@@ -73,13 +68,14 @@ class Repl
       args = r_format.args
       @prompt = r_format.prompt
       @endSequence = r_format.endSequence
+      @outErrorIntercept = r_format.outErrorIntercept
       @print = ""
       @cmdQueue = new Array()
-      @replProcess = child_process.spawn(cmd, args)
+      @replProcess = child_process.spawn @cmd, args
       @replProcess.stdout.on('data', (data) => @processOutputData data)
       @replProcess.stderr.on('data', (data) => @processErrorData data)
-      @replProcess.on('close', () => @closeRepl())
-      @retour(@print, true)
+      @replProcess.on('close', @closeRepl)
+      @retour @print, true
 
 '''
 sh = new ReplSh()

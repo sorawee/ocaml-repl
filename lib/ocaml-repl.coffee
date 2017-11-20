@@ -1,11 +1,12 @@
 #MyREPLView = require './Repl-view'
 REPLView = require './Repl-View/ReplView'
 REPLManager = require './ReplManager'
+dico = require "./ReplList.js"
 $ = require 'jquery'
 {CompositeDisposable} = require 'atom'
 
 REPL_NAME = 'REPL: OCaml'
-delay = (ms, func) -> setTimeout func, ms
+delay = (ms, func) => setTimeout func, ms
 
 module.exports = MyREPL =
 
@@ -71,7 +72,6 @@ config:
   subscriptions: null
 
   activate: (state) ->
-    @map = new Array()
     @replManager = new REPLManager()
     #@myREPLView = new MyREPLView(state.myREPLViewState)
     #@modalPanel = atom.workspace.addRightPanel(item: @myREPLView.getElement(), visible: false)
@@ -80,21 +80,21 @@ config:
     @subscriptions = new CompositeDisposable
 
      # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Python2': => @create("Python Console2")
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Python3': => @create("Python Console3")
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Coffee': => @create("CoffeeScript")
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Bash': => @create('Shell Session')
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Ocaml': => @create('OCaml')
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Octave': => @create('Octave')
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl R': => @create('R')
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Node': => @create('Node')
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Gdb': => @create('C')
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Swift': => @create('Swift')
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Python2': => @create "Python Console2"
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Python3': => @create "Python Console3"
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Coffee': => @create "CoffeeScript"
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Bash': => @create 'Shell Session'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Ocaml': => @create 'OCaml'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Octave': => @create 'Octave'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl R': => @create 'R'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Node': => @create 'Node'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Gdb': => @create 'C'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Swift': => @create 'Swift'
 
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:create': => @create()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:interpreteSelect': => @interpreteSelect()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:interpreteFile': => @interpreteFile()
-    #@subscriptions.add atom.commands.add 'REPL', 'Repl:up': => @up()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:create': => @create()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:interpreteSelect': => @interpreteSelect()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:interpreteFile': => @interpreteFile()
+    #@subscriptions.add atom.commands.add 'REPL', 'ocaml-repl:up': => @up()
 
   deactivate: ->
     #@modalPanel.destroy()
@@ -106,19 +106,16 @@ config:
     #myREPLViewState: @myREPLView.serialize()
 
   create: (grammarName) ->
-    atom.workspace
-      .getTextEditors()
-      .filter (editor) -> editor.getTitle() == REPL_NAME
-      .forEach (editor) -> editor.destroy()
-
-    if(!grammarName?)
-      if atom.workspace.getActiveTextEditor()?
-        grammarName = atom.workspace.getActiveTextEditor().getGrammar().name
+    @replManager.map[grammarName]?.replTextEditor.destroy()
+    if not grammarName?
+      txtEditor = atom.workspace.getActiveTextEditor()
+      if txtEditor?
+        grammarName = txtEditor.getGrammar().name
       else
         console.log("erreur1")
         grammarName = 'Shell Session'
 
-    @replManager.createRepl(grammarName)
+    @replManager.createRepl grammarName
     #@map.push([txtEditor,new REPLView(txtEditor)])
 
   interpreteSelect: ->
@@ -132,19 +129,21 @@ config:
 
   interpreteFile: ->
     editors = atom.workspace.getTextEditors()
-    return if editors.length is 1 and atom.workspace.getActiveTextEditor().getTitle == REPL_NAME
-
-    editors
-      .filter (editor) -> editor.getTitle() == REPL_NAME
-      .forEach (editor) -> editor.destroy()
-
     txtEditor = atom.workspace.getActiveTextEditor()
-    if txtEditor?
-      grammarName = txtEditor.getGrammar().name
-      @replManager.createRepl grammarName
-      delay 100, =>
-        @replManager.interprete(txtEditor.getText(), grammarName)
-        pane = atom.workspace.paneForItem txtEditor
-        pane.activate()
+    return unless txtEditor?
+    suicide = Object.keys(dico).some (grammarName) =>
+      @replManager.map[grammarName]?.replTextEditor is txtEditor
+    return if editors.length is 1 and suicide
+    grammarName = if suicide
+      txtEditor.destroy()
+      txtEditor = atom.workspace.getActiveTextEditor()
+      txtEditor.getGrammar().name
     else
-      console.log("error interpreteFile")
+      grammarName = txtEditor.getGrammar().name
+      @replManager.map[grammarName]?.replTextEditor.destroy()
+      grammarName
+    @replManager.createRepl grammarName
+    delay 100, =>
+      @replManager.interprete(txtEditor.getText(), grammarName)
+      pane = atom.workspace.paneForItem txtEditor
+      pane.activate()
