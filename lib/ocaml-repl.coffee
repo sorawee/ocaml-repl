@@ -80,21 +80,21 @@ config:
     @subscriptions = new CompositeDisposable
 
      # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Python2': => @create "Python Console2"
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Python3': => @create "Python Console3"
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Coffee': => @create "CoffeeScript"
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Bash': => @create 'Shell Session'
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Ocaml': => @create 'OCaml'
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Octave': => @create 'Octave'
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl R': => @create 'R'
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Node': => @create 'Node'
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Gdb': => @create 'C'
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:Repl Swift': => @create 'Swift'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Python2': => @create "Python Console2"
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Python3': => @create "Python Console3"
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Coffee': => @create "CoffeeScript"
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Bash': => @create 'Shell Session'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Ocaml': => @create 'OCaml'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Octave': => @create 'Octave'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl R': => @create 'R'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Node': => @create 'Node'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Gdb': => @create 'C'
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:Repl Swift': => @create 'Swift'
 
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:create': => @create()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:interpreteSelect': => @interpreteSelect()
-    @subscriptions.add atom.commands.add 'atom-workspace', 'Repl:interpreteFile': => @interpreteFile()
-    #@subscriptions.add atom.commands.add 'REPL', 'Repl:up': => @up()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:create': => @create()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:interpreteSelect': => @interpreteSelect()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'ocaml-repl:interpreteFile': => @interpreteFile()
+    #@subscriptions.add atom.commands.add 'REPL', 'ocaml-repl:up': => @up()
 
   deactivate: ->
     #@modalPanel.destroy()

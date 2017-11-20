@@ -1,0 +1,22 @@
+# Keybindings require three things to be fully defined: A selector that is
+# matched against the focused element, the keystroke and the command to
+# execute.
+#
+# Below is a basic keybinding which registers on all platforms by applying to
+# the root workspace element.
+
+# For more detailed documentation see
+# https://atom.io/docs/latest/advanced/keymaps
+'atom-workspace':
+    #'ctrl-y ctrl-d': 'ocaml-repl:create',
+    'ctrl-y ctrl-o': 'ocaml-repl:Repl Ocaml',
+    # 'ctrl-y ctrl-m': 'ocaml-repl:Repl Octave',
+    # 'ctrl-y ctrl-p': 'ocaml-repl:Repl Python3',
+    # 'ctrl-y ctrl-b': 'ocaml-repl:Repl Bash',
+    # 'ctrl-y ctrl-c': 'ocaml-repl:Repl Coffee',
+    # 'ctrl-y ctrl-r': 'ocaml-repl:Repl R',
+    # 'ctrl-y ctrl-n': 'ocaml-repl:Repl Node',
+    # 'ctrl-y ctrl-g': 'ocaml-repl:Repl Gdb',
+    # 'ctrl-y ctrl-w': 'ocaml-repl:Repl Swift',
+    # 'ctrl-y ctrl-s': 'ocaml-repl:interpreteSelect',
+    'ctrl-y ctrl-f': 'ocaml-repl:interpreteFile'

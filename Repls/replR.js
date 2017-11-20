@@ -1,5 +1,5 @@
 module.exports =
-cmd = atom.config.get('Repl.r')
+cmd = atom.config.get('ocaml-repl.r')
 prompt = "R $ "
 args = ["--interactive", "--no-readline"]
 endSequence = '\n'

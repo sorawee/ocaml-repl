@@ -71,10 +71,10 @@ class Repl
       @outErrorIntercept = r_format.outErrorIntercept
       @print = ""
       @cmdQueue = new Array()
-      @replProcess = child_process.spawn cmd, args
+      @replProcess = child_process.spawn @cmd, args
       @replProcess.stdout.on('data', (data) => @processOutputData data)
       @replProcess.stderr.on('data', (data) => @processErrorData data)
-      @replProcess.on('close', () => @closeRepl())
+      @replProcess.on('close', @closeRepl)
       @retour @print, true
 
 '''

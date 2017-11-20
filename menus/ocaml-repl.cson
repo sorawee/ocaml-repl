@@ -3,7 +3,7 @@
   'atom-text-editor': [
     {
       'label': 'Create Repl'
-      'command': 'Repl:toggle'
+      'command': 'ocaml-repl:toggle'
     }
   ]
 'menu': [
@@ -14,55 +14,55 @@
       'submenu': [
         # {
         #     'label': 'Create'
-        #     'command': 'Repl:create'
+        #     'command': 'ocaml-repl:create'
         # }
         # {
         #   'label': 'Repl Python2'
-        #   'command': 'Repl:Repl Python2'
+        #   'command': 'ocaml-repl:Repl Python2'
         # }
         # {
         #   'label': 'Repl Python3'
-        #   'command': 'Repl:Repl Python3'
+        #   'command': 'ocaml-repl:Repl Python3'
         # }
         {
           'label': 'Repl Ocaml'
-          'command': 'Repl:Repl Ocaml'
+          'command': 'ocaml-repl:Repl Ocaml'
         }
         # {
         #   'label': 'Repl Octave'
-        #   'command': 'Repl:Repl Octave'
+        #   'command': 'ocaml-repl:Repl Octave'
         # }
         # {
         #   'label': 'Repl Bash'
-        #   'command': 'Repl:Repl Bash'
+        #   'command': 'ocaml-repl:Repl Bash'
         # }
         # {
         #   'label': 'Repl Coffee'
-        #   'command': 'Repl:Repl Coffee'
+        #   'command': 'ocaml-repl:Repl Coffee'
         # }
         # {
         #   'label': 'Repl R'
-        #   'command': 'Repl:Repl R'
+        #   'command': 'ocaml-repl:Repl R'
         # }
         # {
         #   'label': 'Repl Node'
-        #   'command': 'Repl:Repl Node'
+        #   'command': 'ocaml-repl:Repl Node'
         # }
         # {
         #   'label': 'Repl Gdb'
-        #   'command': 'Repl:Repl Gdb'
+        #   'command': 'ocaml-repl:Repl Gdb'
         # }
         # {
         #   'label': 'Repl Swift'
-        #   'command': 'Repl:Repl Swift'
+        #   'command': 'ocaml-repl:Repl Swift'
         # }
         {
           'label': 'Interprete File'
-          'command': 'Repl:interpreteFile'
+          'command': 'ocaml-repl:interpreteFile'
         }
         # {
         #   'label': 'Interprete Selection'
-        #   'command': 'Repl:interpreteSelect'
+        #   'command': 'ocaml-repl:interpreteSelect'
         # }
       ]
     ]

@@ -121,7 +121,7 @@ class REPLView
     @format = new REPLFormat("../../Repls/" + file)
     @lastBuf = 0
     uri = "REPL: " + @grammarName
-    opts = split: 'right' if atom.config.get 'Repl.splitRight'
+    opts = split: 'right' if atom.config.get 'ocaml-repl.splitRight'
     atom.workspace.open(uri, opts).done (textEditor) =>
       pane = atom.workspace.getActivePane()
       @setTextEditor textEditor
