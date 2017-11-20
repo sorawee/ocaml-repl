@@ -110,7 +110,7 @@ config:
       .getTextEditors()
       .filter (editor) -> editor.getTitle() == REPL_NAME
       .forEach (editor) -> editor.destroy()
-      
+
     if(!grammarName?)
       if atom.workspace.getActiveTextEditor()?
         grammarName = atom.workspace.getActiveTextEditor().getGrammar().name
@@ -133,11 +133,11 @@ config:
   interpreteFile: ->
     editors = atom.workspace.getTextEditors()
     return if editors.length is 1 and atom.workspace.getActiveTextEditor().getTitle == REPL_NAME
-    
+
     editors
       .filter (editor) -> editor.getTitle() == REPL_NAME
       .forEach (editor) -> editor.destroy()
-    
+
     txtEditor = atom.workspace.getActiveTextEditor()
     if txtEditor?
       grammarName = txtEditor.getGrammar().name
