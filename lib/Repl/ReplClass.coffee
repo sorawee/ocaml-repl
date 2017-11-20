@@ -9,7 +9,7 @@ class Repl
 
     processCmd: ()->
       @indiceH = -1
-      # @retour(@prompt, true) if @processing # show prompt
+      @retour(@prompt, true) if @processing # show prompt
       if @cmdQueue.length > 0 # list of cmd to execute
         @processing = true
         cmd = @cmdQueue.shift()

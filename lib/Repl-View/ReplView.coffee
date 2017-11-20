@@ -32,12 +32,19 @@ class REPLView
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
       event.stopImmediatePropagation()
 
-  dealWithEnter: =>
+  dealWithEnter: (event) =>
+    event.stopImmediatePropagation()
     @replTextEditor.moveToBottom()
     @replTextEditor.moveToEndOfLine()
     buf = @replTextEditor.getCursorBufferPosition()
-    @repl.writeInRepl(@replTextEditor.getTextInBufferRange([@lastBuf, buf]) + '\n', false)
-    @lastBuf = buf
+    message = @replTextEditor.getTextInBufferRange([@lastBuf, buf]) + '\n'
+    @repl.writeInRepl(message, false)
+    @replTextEditor.insertNewline()
+    if (not @repl.processing) and (not message.trim().endsWith ';;')
+      @dealWithRetour(@format.promptCont, true)
+    @replTextEditor.moveToBottom()
+    @replTextEditor.moveToEndOfLine()
+    @lastBuf = @replTextEditor.getCursorBufferPosition()
 
 
   setGrammar: =>
@@ -67,7 +74,7 @@ class REPLView
     #@replTextEditor.onWillInsertText(@dealWithEnter)
     @subscribe.add @replTextEditor.onWillInsertText(@dealWithInsert)
     @subscribe.add textEditorElement = atom.views.getView @replTextEditor
-    @subscribe.add atom.commands.add textEditorElement, 'editor:newline': => @dealWithEnter()
+    @subscribe.add atom.commands.add textEditorElement, 'editor:newline': @dealWithEnter
     @subscribe.add atom.commands.add textEditorElement, 'core:move-up': @dealWithUp
     @subscribe.add atom.commands.add textEditorElement, 'core:move-down': => @dealWithDown()
     @subscribe.add atom.commands.add textEditorElement, 'core:backspace': @dealWithBackspace
@@ -111,7 +118,7 @@ class REPLView
 
   constructor: (@grammarName, file, callBackCreate) ->
     @subscribe = new CompositeDisposable
-    format = new REPLFormat("../../Repls/" + file)
+    @format = new REPLFormat("../../Repls/" + file)
     @lastBuf = 0
     uri = "REPL: " + @grammarName
     opts = split: 'right' if atom.config.get 'Repl.splitRight'
@@ -120,7 +127,7 @@ class REPLView
       @setTextEditor textEditor
       if @grammarName == "Python Console3" or @grammarName == "Python Console2" or @grammarName == "Python"
         @grammarName = "Python Console"
-        @setRepl(new REPLPython(format, @dealWithRetour))
+        @setRepl(new REPLPython(@format, @dealWithRetour))
       else
-        @setRepl(new REPL(format, @dealWithRetour))
+        @setRepl(new REPL(@format, @dealWithRetour))
       callBackCreate this, pane

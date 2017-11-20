@@ -10,6 +10,7 @@ class ReplFormat
         @cmd = cmd
         @args = args
         @prompt = prompt
+        @promptCont = promptCont
         @endSequence = endSequence
         @outErrorIntercept = outErrorIntercept
         delete require.cache[require.resolve(conf_path)]
