@@ -123,7 +123,7 @@ class REPLView
     @lastBuf = 0
     uri = "REPL: " + @grammarName
     opts = split: 'right' if atom.config.get 'ocaml-repl.splitRight'
-    atom.workspace.open(uri, opts).done (textEditor) =>
+    atom.workspace.open(uri, opts).then (textEditor) =>
       pane = atom.workspace.getActivePane()
       @setTextEditor textEditor
       if @grammarName == "Python Console3" or @grammarName == "Python Console2" or @grammarName == "Python"

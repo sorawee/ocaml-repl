@@ -16,8 +16,10 @@ outErrorIntercept = out => {
   });
   if (hasError) return true;
   if (lines.length >= 2) {
+    // assumption: all runtime error ends with
+    // dot on the last line
     const lastLine = lines[lines.length - 2];
-    return lastLine.endsWith('.') && lines.some(line => line.startsWith('Exception:'));
+    return lastLine.endsWith('.');
   }
   return false;
 }
