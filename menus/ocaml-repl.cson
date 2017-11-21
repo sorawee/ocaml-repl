@@ -1,11 +1,11 @@
 # See https://atom.io/docs/latest/creating-a-package#menus for more details
-'context-menu':
-  'atom-text-editor': [
-    {
-      'label': 'Create Repl'
-      'command': 'ocaml-repl:toggle'
-    }
-  ]
+# 'context-menu':
+#   'atom-text-editor': [
+#     {
+#       'label': 'Create Repl'
+#       'command': 'ocaml-repl:toggle'
+#     }
+#   ]
 'menu': [
   {
     'label': 'Packages'

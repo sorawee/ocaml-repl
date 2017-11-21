@@ -16,6 +16,7 @@ class REPLView
 
   interprete: (select) =>
     @repl.writeInRepl select, true
+    @repl.writeInRepl 'let () = Printf.printf "\\n\\n####################\\n#### OCaml REPL ####\\n####################\\n\\n"', true
 
   remove: =>
     @subscribe.clear()
@@ -48,16 +49,16 @@ class REPLView
 
 
   setGrammar: =>
-    grammars = atom.grammars.getGrammars()
-    gName = if @grammarName == 'Node' then 'JavaScript' else @grammarName
-    for grammar in grammars
-      if grammar.name == gName
-        # change the scopeName so that other packages (namely the atom-linter package [https://atom.io/packages/linter]) stop making invalid actions;
-        # see https://github.com/steelbrain/linter/issues/1207
-        grammarToUse = clone.clonePrototype grammar
-        grammarToUse.scopeName = 'repl.' + grammarToUse.scopeName;
-        @replTextEditor.setGrammar grammarToUse
-        return
+    @replTextEditor.setGrammar atom.grammars.grammarForScopeName 'repl.ocaml'
+
+    # gName = if @grammarName == 'Node' then 'JavaScript' else @grammarName
+    # for grammar in grammars
+    #   if grammar.name == gName
+    #     # change the scopeName so that other packages (namely the atom-linter package [https://atom.io/packages/linter]) stop making invalid actions;
+    #     # see https://github.com/steelbrain/linter/issues/1207
+    #     grammarToUse.scopeName = 'repl.' + grammar.scopeName
+    #     @replTextEditor.setGrammar grammarToUse
+    #     return
 
   dealWithUp: (e) =>
     e.stopImmediatePropagation()
@@ -92,10 +93,10 @@ class REPLView
       if matches?
         matches.forEach (match) =>
           if match.endsWith '[4m'
-            newData = newData.replace match, '❰❰❰❰❰'
+            newData = newData.replace match, '<<<'
             underlined = true
           else if underlined and match.endsWith '[24m'
-            newData = newData.replace match, '❱❱❱❱❱'
+            newData = newData.replace match, '>>>'
             underlined = false
           else
             newData = newData.replace match, ''
