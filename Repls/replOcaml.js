@@ -19,7 +19,8 @@ outErrorIntercept = out => {
     // assumption: all runtime error ends with
     // dot on the last line
     const lastLine = lines[lines.length - 2];
-    return lastLine.endsWith('.');
+    // from https://caml.inria.fr/pub/docs/manual-ocaml/comp.html#s%3Acomp-errors
+    return lastLine.endsWith('.') && lines.some(line => ['Cannot find file', 'Corrupted compiled interface', 'Reference to undefined global', 'The external function', 'Exception:'].some(err => line.startsWith(err)));
   }
   return false;
 }
