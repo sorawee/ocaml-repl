@@ -16,7 +16,7 @@ class REPLView
 
   interprete: (select) =>
     @repl.writeInRepl select, true
-    @repl.writeInRepl 'let () = Printf.printf "\\n\\n####################\\n#### OCaml REPL ####\\n####################\\n\\n"', true
+    @repl.writeInRepl 'let () = print_string "\\n\\n#### OCaml REPL ####\\n\\n"', true
 
   remove: =>
     @subscribe.clear()
@@ -131,4 +131,5 @@ class REPLView
         @setRepl(new REPLPython(@format, @dealWithRetour))
       else
         @setRepl(new REPL(@format, @dealWithRetour))
+      @repl.writeInRepl 'let () = print_string ("OCaml session starts in \\"" ^ Sys.getcwd() ^ "\\"\\n\\n")', true
       callBackCreate this, pane

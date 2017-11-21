@@ -33,8 +33,10 @@ class ReplManager
         replView.remove()
       )
 
-  createRepl: (grammarName) =>
+  createRepl: (grammarName, callBack) =>
     if @grammarNameSupport(grammarName)
-      @map[grammarName] = new REPLView(grammarName, dico[grammarName], @callBackCreate)
+      @map[grammarName] = new REPLView(grammarName, dico[grammarName], (replView, pane) =>
+        @callBackCreate replView, pane
+        callBack?())
     else
       console.log("grammar error")

@@ -142,8 +142,7 @@ config:
       grammarName = txtEditor.getGrammar().name
       @replManager.map[grammarName]?.replTextEditor.destroy()
       grammarName
-    @replManager.createRepl grammarName
-    delay 100, =>
+    @replManager.createRepl grammarName, =>
       @replManager.interprete(txtEditor.getText(), grammarName)
       pane = atom.workspace.paneForItem txtEditor
       pane.activate()
