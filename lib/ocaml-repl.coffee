@@ -6,7 +6,6 @@ $ = require 'jquery'
 {CompositeDisposable} = require 'atom'
 
 REPL_NAME = 'REPL: OCaml'
-delay = (ms, func) => setTimeout func, ms
 
 module.exports = MyREPL =
 
@@ -143,6 +142,6 @@ config:
       @replManager.map[grammarName]?.replTextEditor.destroy()
       grammarName
     @replManager.createRepl grammarName, =>
-      @replManager.interprete(txtEditor.getText(), grammarName)
+      @replManager.interprete txtEditor, grammarName
       pane = atom.workspace.paneForItem txtEditor
       pane.activate()

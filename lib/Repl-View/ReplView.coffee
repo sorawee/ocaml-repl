@@ -6,6 +6,8 @@ ansiRegex = require 'ansi-regex'
 {CompositeDisposable} = require 'event-kit'
 clone = require 'clone'
 
+delay = (ms, func) => setTimeout func, ms
+
 
 module.exports =
 class REPLView
@@ -14,9 +16,18 @@ class REPLView
     if @lastBuf.row > buf.row or (@lastBuf.row == buf.row and @lastBuf.column > buf.column)
       event.cancel()
 
-  interprete: (select) =>
-    @repl.writeInRepl select, true
-    @repl.writeInRepl 'let () = print_string "\\n\\n#### OCaml REPL ####\\n\\n"', true
+  interprete: (editor) =>
+    delay 100, =>
+      path = editor.getPath()
+      dirname = path.substring 0, path.lastIndexOf '/'
+      @replTextEditor.moveToBottom()
+      @replTextEditor.moveToEndOfLine()
+      cdCmd = "#cd \"#{dirname}\";;\n"
+      @replTextEditor.insertText cdCmd
+      @repl.writeInRepl cdCmd, true
+      @replTextEditor.insertText ;
+      @repl.writeInRepl editor.getText(), true
+      @repl.writeInRepl 'let () = print_string "\\n        OCaml REPL\\n\\n"', true
 
   remove: =>
     @subscribe.clear()
@@ -49,16 +60,19 @@ class REPLView
 
 
   setGrammar: =>
-    @replTextEditor.setGrammar atom.grammars.grammarForScopeName 'repl.ocaml'
-
+    # grammars = atom.grammars.getGrammars()
     # gName = if @grammarName == 'Node' then 'JavaScript' else @grammarName
     # for grammar in grammars
     #   if grammar.name == gName
     #     # change the scopeName so that other packages (namely the atom-linter package [https://atom.io/packages/linter]) stop making invalid actions;
     #     # see https://github.com/steelbrain/linter/issues/1207
-    #     grammarToUse.scopeName = 'repl.' + grammar.scopeName
+    #
+    #     grammarToUse = clone.clonePrototype grammar
+    #     grammarToUse.scopeName = 'repl.' + grammarToUse.scopeName;
     #     @replTextEditor.setGrammar grammarToUse
     #     return
+
+    @replTextEditor.setGrammar atom.grammars.grammarForScopeName 'repl.ocaml'
 
   dealWithUp: (e) =>
     e.stopImmediatePropagation()
@@ -131,5 +145,4 @@ class REPLView
         @setRepl(new REPLPython(@format, @dealWithRetour))
       else
         @setRepl(new REPL(@format, @dealWithRetour))
-      @repl.writeInRepl 'let () = print_string ("OCaml session starts in \\"" ^ Sys.getcwd() ^ "\\"\\n\\n")', true
       callBackCreate this, pane
