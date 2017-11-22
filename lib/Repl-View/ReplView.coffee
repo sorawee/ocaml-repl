@@ -17,13 +17,17 @@ class REPLView
       event.cancel()
 
   interprete: (editor) =>
+    path = editor.getPath()
+    dirname = path.substring 0, path.lastIndexOf '/'
+    @replTextEditor.insertText "CWD: \"#{dirname}\"\n\n"
     delay 100, =>
-      path = editor.getPath()
-      dirname = path.substring 0, path.lastIndexOf '/'
       @replTextEditor.moveToBottom()
       @replTextEditor.moveToEndOfLine()
       cdCmd = "#cd \"#{dirname}\";;\n"
-      @replTextEditor.insertText cdCmd
+      @replTextEditor.selectToBeginningOfLine()
+      @replTextEditor.delete()
+      @replTextEditor.insertText "# "
+      @lastBuf = @replTextEditor.getCursorBufferPosition()
       @repl.writeInRepl cdCmd, true
       @replTextEditor.insertText ;
       @repl.writeInRepl editor.getText(), true
