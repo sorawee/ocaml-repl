@@ -1,7 +1,7 @@
 {
   "name": "ocaml-repl",
   "main": "./lib/ocaml-repl.coffee",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "An OCaml REPL for Atom",
   "activationCommands": {},
   "repository": "https://github.com/sorawee/ocaml-repl.git",
