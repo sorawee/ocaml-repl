@@ -2,9 +2,9 @@ ansiRegex = require('ansi-regex')
 
 module.exports =
 cmd = atom.config.get('ocaml-repl.ocaml')
-prompt = ''
-promptCont = '  '
-args = ['-nopromptcont']
+prompt = '>>> '
+promptCont = '    '
+args = ['-I', '+compiler-libs']
 endSequence = ';;\n'
 outErrorIntercept = out => {
   const lines = out.trim().split('\n');

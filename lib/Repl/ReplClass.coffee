@@ -9,16 +9,17 @@ class Repl
 
     processCmd: ()->
       @indiceH = -1
-      @retour(@prompt, true) if @processing # show prompt
       if @cmdQueue.length > 0 # list of cmd to execute
-        @processing = true
         cmd = @cmdQueue.shift()
+        @retour(@prompt, true) if @processing and not cmd[1]
+        @processing = true
         @replProcess.stdin.write cmd[0] # send cmd to pipe
         if cmd[0].slice(-@endSequence.length) != @endSequence
           # if not ending with end sequence execute next one
           @processing = false
           @processCmd() #
       else
+        @retour(@prompt, true) if @processing
         @processing = false
 
     history: (up) ->
@@ -55,6 +56,7 @@ class Repl
         cmd = cmd + @endSequence if cmd.slice(-@endSequence.length) != @endSequence
         (cmd.split @endSequence).forEach (line) =>
           @cmdQueue.push [line + @endSequence, write_cmd] if line.trim() != ""
+        # @cmdQueue.push [cmd, write_cmd]
       else
         @historique.unshift cmd
         @cmdQueue.push [cmd, write_cmd]

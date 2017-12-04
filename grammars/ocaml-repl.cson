@@ -4,7 +4,13 @@
 'patterns': [
   {
     begin: '<<<'
+    beginCaptures:
+      '0':
+        name: 'variable.ocaml'
     end: '>>>'
+    endCaptures:
+      '0':
+        name: 'variable.ocaml'
     name: 'markup.underline.ocaml'
     patterns: [
       {

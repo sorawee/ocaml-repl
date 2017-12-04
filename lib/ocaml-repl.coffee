@@ -114,7 +114,8 @@ config:
         console.log("erreur1")
         grammarName = 'Shell Session'
 
-    @replManager.createRepl grammarName
+    @replManager.createRepl grammarName, =>
+      @replManager.interprete undefined, grammarName
     #@map.push([txtEditor,new REPLView(txtEditor)])
 
   interpreteSelect: ->

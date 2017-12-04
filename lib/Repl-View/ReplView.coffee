@@ -7,7 +7,10 @@ ansiRegex = require 'ansi-regex'
 clone = require 'clone'
 
 delay = (ms, func) => setTimeout func, ms
+passCode = "%S%e%s%a%m%e%o%u%v%r%e%t%o%i%"
 
+replaceAll = (str, find, replace) =>
+  str.replace (new RegExp(find, 'g')), replace
 
 module.exports =
 class REPLView
@@ -17,21 +20,30 @@ class REPLView
       event.cancel()
 
   interprete: (editor) =>
-    path = editor.getPath()
-    dirname = path.substring 0, path.lastIndexOf '/'
-    @replTextEditor.insertText "CWD: \"#{dirname}\"\n\n"
-    delay 100, =>
-      @replTextEditor.moveToBottom()
-      @replTextEditor.moveToEndOfLine()
-      cdCmd = "#cd \"#{dirname}\";;\n"
-      @replTextEditor.selectToBeginningOfLine()
-      @replTextEditor.delete()
-      @replTextEditor.insertText "# "
-      @lastBuf = @replTextEditor.getCursorBufferPosition()
-      @repl.writeInRepl cdCmd, true
-      @replTextEditor.insertText ;
-      @repl.writeInRepl editor.getText(), true
-      @repl.writeInRepl 'let () = print_string "\\n        OCaml REPL\\n\\n"', true
+
+    if editor?
+      path = editor.getPath()
+      dirname = path.substring 0, path.lastIndexOf '/'
+      @replTextEditor.insertText "CWD: \"#{dirname}\"\n\n"
+      delay 120, =>
+        @replTextEditor.moveToBottom()
+        @replTextEditor.moveToEndOfLine()
+        cdCmd = "#cd \"#{dirname}\";;\n"
+        @replTextEditor.selectToBeginningOfLine()
+        @replTextEditor.delete()
+        # @replTextEditor.insertText ">>> "
+        @lastBuf = @replTextEditor.getCursorBufferPosition()
+        @repl.writeInRepl cdCmd, true
+        @repl.writeInRepl editor.getText(), true
+        @repl.writeInRepl 'let () = print_string "\\n        OCaml REPL\\n\\n"', true
+    else
+      delay 120, =>
+        @replTextEditor.moveToBottom()
+        @replTextEditor.moveToEndOfLine()
+        @replTextEditor.selectToBeginningOfLine()
+        @replTextEditor.delete()
+        @lastBuf = @replTextEditor.getCursorBufferPosition()
+        @repl.writeInRepl ';;', true
 
   remove: =>
     @subscribe.clear()
@@ -119,7 +131,7 @@ class REPLView
           else
             newData = newData.replace match, ''
 
-      @replTextEditor.insertText newData
+      @replTextEditor.insertText(replaceAll newData, passCode, '')
       @lastBuf = @replTextEditor.getCursorBufferPosition()
     else
       '''
@@ -149,4 +161,5 @@ class REPLView
         @setRepl(new REPLPython(@format, @dealWithRetour))
       else
         @setRepl(new REPL(@format, @dealWithRetour))
+      @repl.writeInRepl "let () = Toploop.read_interactive_input := let old = !Toploop.read_interactive_input in fun prompt buffer len -> old \"#{passCode}\" buffer len ;;", true
       callBackCreate this, pane
