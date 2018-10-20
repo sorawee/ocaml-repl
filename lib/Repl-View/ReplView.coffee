@@ -22,8 +22,7 @@ class REPLView
   interprete: (editor) =>
 
     if editor?
-      path = editor.getPath()
-      dirname = path.substring 0, path.lastIndexOf '/'
+      dirname = editor.getDirectoryPath().replace /\\/g, '\\\\'
       @replTextEditor.insertText "CWD: \"#{dirname}\"\n\n"
       delay 120, =>
         @replTextEditor.moveToBottom()
